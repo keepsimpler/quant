@@ -126,7 +126,7 @@ myfun4 <- function(coeff, antago.symm = FALSE) {
   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
   Vd = 1 / norm(- solve(Phi), type = '2')
   R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
-  c(coeff = coeff, lev = lev, Vs = Vs, Vd = Vd, R0 = R0)
+  data.frame(coeff = coeff, lev = lev, Vs = Vs, Vd = Vd, R0 = R0)
 }
 
 check_jacobian <- function(coeff, antago.symm = FALSE) {
