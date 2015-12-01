@@ -58,11 +58,15 @@ GammaAN2 <- function(AN, AP, nstar) {
 #' @param coeff, coefficients
 #' @param antago.symm, is it symmetric the antagonism interaction strengths
 #' @param nstar, densities of species in equilibrium
+#' @param graph.type, graph structural types such as 'er', 'sf', etc.
+#' @param exponent, exponent of scale-free degrees
 get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   s = unlist(coeff['s'])
+  graph.type = coeff['graph.type']
+  exponent = coeff['exponent']
   if (is.null(nstar))
     nstar = rep(1, s) # assign species densities in equilibrium to 1
-  hybrid_graph <- gen_hybrid_network(s, unlist(coeff['k']), pc = unlist(coeff['pc']), pa = unlist(coeff['pa']), pm = unlist(coeff['pm']))
+  hybrid_graph <- gen_hybrid_network(s, k = unlist(coeff['k']), type = graph.type, pc = unlist(coeff['pc']), pa = unlist(coeff['pa']), pm = unlist(coeff['pm']), exponent = exponent)
   params <- params_acm(hybrid_graph, coeff, antago.symm = antago.symm)
   #params$r <- get_intrinsic_growth_rates(params, nstar)
 

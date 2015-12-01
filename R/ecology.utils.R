@@ -5,38 +5,38 @@
 #' if graph type is bipartite, s[1], s[2] represent size of two groups; else s is size of network
 #' @param k, average degree for the network.
 #' 1 < k < s for unipartite network, 1 < k < s[1]*s[2]/(s[1]+s[2]) for bipartite network.
-#' @param gtype, Graph type generated: 'bipartite', 'sf', 'er', 'dag', 'regular'.
+#' @param type, Graph type generated: 'bipartite', 'sf', 'er', 'dag', 'regular'.
 #' @param maxtried, the maximum number of tried times.
 #' If have tried [maxtried] times, the function will return no matter whether the connected graph is generated.
-#' @param expower exponent coefficient of Scale-Free network
+#' @param exponent exponent coefficient of Scale-Free network
 #' @param ... the params conform to the implementation functions of [igraph]
 #' @return the connected graph
 #' @details .
 #' @import igraph
-gen_connected_graph <- function(s, k, gtype, maxtried = 100, expower = 2.5, ...) {
+gen_connected_graph <- function(s, k, type, maxtried = 100, exponent = 2.5, ...) {
   #library(igraph)
-  if (gtype == 'bipartite' && is.na(s[2])) {  # the bipartite graph need size of two groups of nodes
+  if (type == 'bipartite' && is.na(s[2])) {  # the bipartite graph need size of two groups of nodes
     warning('sizes of TWO groups of nodes should be designated.
             we have assumed the size of second group equal to the size of first group.')
     s[2] = s[1]  # if missed second size, we assume it equal to the first size.
   }
   count = 0
   repeat {  # generate a connected graph
-    if (gtype == 'bipartite') {
+    if (type == 'bipartite') {
       G = sample_bipartite(s[1], s[2], type = 'gnm', m = ceiling(k * (s[1] + s[2])))
-    } else if (gtype == 'sf') {
-      G = sample_fitness_pl(s, k * s, exponent.out = expower)
+    } else if (type == 'sf') {
+      G = sample_fitness_pl(s, k * s, exponent.out = exponent)
     }
-    else if (gtype == 'er') {
+    else if (type == 'er') {
       G = sample_gnm(s, k * s)
     }
-    else if (gtype == 'regular') {
+    else if (type == 'regular') {
       G = sample_k_regular(s, k)
     }
-    else if (gtype == 'complete') {
+    else if (type == 'complete') {
       G = make_full_graph(s)
     }
-    else if (gtype == 'dag') {
+    else if (type == 'dag') {
       require('spacejam')  # generate random directed Acyclic graphs
       G = rdag(s, s * k * 2)
     }
@@ -59,7 +59,7 @@ gen_connected_graph <- function(s, k, gtype, maxtried = 100, expower = 2.5, ...)
 #' @param pc probability of competition interactions
 #' @param pa probability of antagonism interactions
 #' @param pm probability of mutualism interactions
-#' @param ... additional arguments transformed to graph generate such as [expower]
+#' @param ... additional arguments transformed to graph generate such as [exponent]
 gen_hybrid_network <- function(s, k, type = 'er', pc = 0., pa = 0., pm = 1., ...) {
   stopifnot(pc >= 0., pa >= 0., pm >= 0., round(pc + pa + pm, 5) == 1)
   G = gen_connected_graph(s, k, type, ...)  # generate a connected graph
