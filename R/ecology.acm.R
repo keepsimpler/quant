@@ -102,11 +102,11 @@ myfun3 <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   eigenvalues = eigen(Phi)$values
   lev = max(Re(eigenvalues))
 
-  I = diag(1, s) # identity matrix
-  Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
-  Vd = 1 / norm(- solve(Phi), type = '2')
-  R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
-  c(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji, Vd = Vd, Vs = Vs, R0 = R0)
+#   I = diag(1, s) # identity matrix
+#   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
+#   Vd = 1 / norm(- solve(Phi), type = '2')
+#   R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
+  c(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji)  #  , Vd = Vd, Vs = Vs, R0 = R0
 }
 
 # Spectral Norm of matrix (we only consider real matrix here!)
