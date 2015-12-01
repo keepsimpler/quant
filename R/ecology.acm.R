@@ -59,9 +59,10 @@ GammaAN2 <- function(AN, AP, nstar) {
 #' @param antago.symm, is it symmetric the antagonism interaction strengths
 #' @param nstar, densities of species in equilibrium
 get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
+  s = unlist(coeff['s'])
   if (is.null(nstar))
-    nstar = rep(1, coeff['s']) # assign species densities in equilibrium to 1
-  hybrid_graph <- gen_hybrid_network(unlist(coeff['s']), coeff['k'], pc = coeff['pc'], pa = coeff['pa'], pm = coeff['pm'])
+    nstar = rep(1, s) # assign species densities in equilibrium to 1
+  hybrid_graph <- gen_hybrid_network(s, unlist(coeff['k']), pc = unlist(coeff['pc']), pa = unlist(coeff['pa']), pm = unlist(coeff['pm']))
   params <- params_acm(hybrid_graph, coeff, antago.symm = antago.symm)
   #params$r <- get_intrinsic_growth_rates(params, nstar)
 
@@ -85,10 +86,11 @@ get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   Gamma <- GammaM + GammaAP + GammaAN + GammaC + diag(GammaD)
 }
 
-myfun3 <- function(coeff, antago.symm = FALSE) {
+myfun3 <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   print(coeff['id'])
   s = unlist(coeff['s'])
-  nstar = runif(s, min = 0, max = 2)
+  if (is.null(nstar))
+    nstar = rep(1, s) # runif(s, min = 0, max = 2)
   Phi <- get_jacobian(coeff = coeff, antago.symm = antago.symm, nstar = nstar)
   Eii <- mean(diag(Phi))  # mean of diagonal elements
   Vii <- var(diag(Phi))  # variance of diagonal elements
