@@ -120,7 +120,7 @@ spectral.norm <- function(A) {
 
 myfun4 <- function(coeff, antago.symm = FALSE) {
   print(coeff['id'])
-  I = diag(1, coeff['s']) # identity matrix
+  I = diag(1, unlist(coeff['s'])) # identity matrix
   Phi <- get_jacobian(coeff = coeff, antago.symm = antago.symm)
   lev = - max(Re(eigen(Phi)$values))
   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
