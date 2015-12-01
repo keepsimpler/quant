@@ -61,7 +61,7 @@ GammaAN2 <- function(AN, AP, nstar) {
 get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   if (is.null(nstar))
     nstar = rep(1, coeff['s']) # assign species densities in equilibrium to 1
-  hybrid_graph <- gen_hybrid_network(coeff['s'], coeff['k'], pc = coeff['pc'], pa = coeff['pa'], pm = coeff['pm'])
+  hybrid_graph <- gen_hybrid_network(unlist(coeff['s']), coeff['k'], pc = coeff['pc'], pa = coeff['pa'], pm = coeff['pm'])
   params <- params_acm(hybrid_graph, coeff, antago.symm = antago.symm)
   #params$r <- get_intrinsic_growth_rates(params, nstar)
 
@@ -70,14 +70,14 @@ get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   AN2 <- GammaAN2(AN = params$AN, AP = params$AP, nstar = nstar)
   #GammaDh <- rowSums(h * params$AN * t(params$AP) / (1 + h * AN2)^2)
   GammaDh <- diag(nstar) %*% (h * params$AN * t(params$AP) / (1 + h * AN2)^2) %*% nstar
-  GammaD <- - params$s * nstar + GammaDh
+  GammaD <- as.numeric(- params$s * nstar + GammaDh)
   # non-diagonal elements of Jacobian matrix equal to ...
   e = unlist(coeff['e.mu'])
   g = unlist(coeff['g.mu'])
   #GammaM <- diag(1 / ((1  + h * rowSums(params$M))^2)) %*% (e * params$M)
-  GammaM <- diag(nstar / ((1  + h * (params$M %*% nstar))^2)) %*% (e * params$M)
+  GammaM <- diag(nstar / ((1  + h * rowSums(params$M %*% diag(nstar)))^2)) %*% (e * params$M)
   #GammaAP <- diag(1 / ((1  + h * rowSums(params$AP))^2)) %*% (g * params$AP)
-  GammaAP <- diag(nstar / ((1  + h * (params$AP %*% nstar))^2)) %*% (g * params$AP)
+  GammaAP <- diag(nstar / ((1  + h * rowSums(params$AP %*% diag(nstar)))^2)) %*% (g * params$AP)
   #GammaAN <- - params$AN  / (1 + h * AN2)
   GammaAN <- - diag(nstar) %*% params$AN  / (1 + h * AN2)
   #GammaC <- - params$C
@@ -100,7 +100,7 @@ myfun3 <- function(coeff, antago.symm = FALSE) {
   eigenvalues = eigen(Phi)$values
   lev = max(Re(eigenvalues))
 
-  I = diag(1, coeff['s']) # identity matrix
+  I = diag(1, s) # identity matrix
   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
   Vd = 1 / norm(- solve(Phi), type = '2')
   R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
