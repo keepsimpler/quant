@@ -25,7 +25,7 @@ params_acm <- function(hybrid_graph, coeff, antago.symm = TRUE) {
 }
 
 
-# get intrinsic growth rates accroding to model parameters and species densities in  a steady state
+#' @title get intrinsic growth rates accroding to model parameters and species densities in a steady state
 get_intrinsic_growth_rates <- function(params, nstar) {
   with(as.list(params), {
     r <- s * nstar -  # intraspecies self-regulation
@@ -36,6 +36,20 @@ get_intrinsic_growth_rates <- function(params, nstar) {
     return(r)
   })
 }
+
+get_r <- function(coeff, antago.symm = FALSE, nstar = NULL) {
+  print(coeff['id'])
+  s = unlist(coeff['s'])
+  graph.type = coeff['graph.type']
+  exponent = coeff['exponent']
+  if (is.null(nstar))
+    nstar = rep(1, s) # runif(s, min = 0, max = 2)
+  hybrid_graph <- gen_hybrid_network(s, k = unlist(coeff['k']), type = graph.type, pc = unlist(coeff['pc']), pa = unlist(coeff['pa']), pm = unlist(coeff['pm']), exponent = exponent)
+  params <- params_acm(hybrid_graph, coeff, antago.symm = antago.symm)
+  r <- get_intrinsic_growth_rates(params, nstar)
+  data.frame(coeff = coeff, r = t(r), mean = mean(r), var = var(r))
+}
+
 
 #' @title get sum of resource species of species j which is consumer of species i
 #' @param AN, the Antagonism Negative(species j is consumer of speices i) interactions
@@ -90,7 +104,7 @@ get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   Gamma <- GammaM + GammaAP + GammaAN + GammaC + diag(GammaD)
 }
 
-myfun3 <- function(coeff, antago.symm = FALSE, nstar = NULL) {
+get_lev <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   print(coeff['id'])
   s = unlist(coeff['s'])
   if (is.null(nstar))
@@ -106,11 +120,7 @@ myfun3 <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   eigenvalues = eigen(Phi)$values
   lev = max(Re(eigenvalues))
 
-#   I = diag(1, s) # identity matrix
-#   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
-#   Vd = 1 / norm(- solve(Phi), type = '2')
-#   R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
-  c(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji)  #  , Vd = Vd, Vs = Vs, R0 = R0
+  data.frame(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji)
 }
 
 # Spectral Norm of matrix (we only consider real matrix here!)
@@ -118,7 +128,7 @@ spectral.norm <- function(A) {
   sqrt(max(Re(eigen(t(A) %*% A)$values)))
 }
 
-myfun4 <- function(coeff, antago.symm = FALSE) {
+get_lev_variability <- function(coeff, antago.symm = FALSE) {
   print(coeff['id'])
   I = diag(1, unlist(coeff['s'])) # identity matrix
   Phi <- get_jacobian(coeff = coeff, antago.symm = antago.symm)
