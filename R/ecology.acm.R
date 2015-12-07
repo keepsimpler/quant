@@ -102,6 +102,7 @@ get_jacobian <- function(coeff,  antago.symm = FALSE, nstar = NULL) {
   #GammaC <- - params$C
   GammaC <- - diag(nstar) %*% params$C
   Gamma <- GammaM + GammaAP + GammaAN + GammaC + diag(GammaD)
+  list(Gamma = Gamma, GammaM = GammaM, GammaAP = GammaAP, GammaAN = GammaAN, GammaC = GammaC)
 }
 
 get_lev <- function(coeff, antago.symm = FALSE, nstar = NULL) {
@@ -109,7 +110,26 @@ get_lev <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   s = unlist(coeff['s'])
   if (is.null(nstar))
     nstar = rep(1, s) # runif(s, min = 0, max = 2)
-  Phi <- get_jacobian(coeff = coeff, antago.symm = antago.symm, nstar = nstar)
+  tmp <- get_jacobian(coeff = coeff, antago.symm = antago.symm, nstar = nstar)
+  GammaM <- tmp$GammaM
+  EijM <- mean(GammaM)
+  Eij2M <- mean(GammaM * GammaM)
+  EijjiM <- mean(GammaM * t(GammaM))
+
+  GammaC <- tmp$GammaC
+  EijC <- mean(GammaC)
+  Eij2C <- mean(GammaC * GammaC)
+  EijjiC <- mean(GammaC * t(GammaC))
+
+  GammaAP <- tmp$GammaAP
+  GammaAN <- tmp$GammaAN
+  EijAP <- mean(GammaAP)
+  EijAN <- mean(GammaAN)
+  Eij2AP <- mean(GammaAP * GammaAP)
+  Eij2AN <- mean(GammaAN * GammaAN)
+  EijjiA <- mean((GammaAP + GammaAN) * t(GammaAP + GammaAN))
+
+  Phi = tmp$Gamma
   Eii <- mean(diag(Phi))  # mean of diagonal elements
   Vii <- var(diag(Phi))  # variance of diagonal elements
   Eij <- mean(Phi[row(Phi) != col(Phi)])  # mean of off-diagonal elements
@@ -120,7 +140,7 @@ get_lev <- function(coeff, antago.symm = FALSE, nstar = NULL) {
   eigenvalues = eigen(Phi)$values
   lev = max(Re(eigenvalues))
 
-  data.frame(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji)
+  data.frame(coeff = coeff, lev = lev, Eii = Eii, Vii = Vii, Eij = Eij, Eij2 = Eij2, Eijji = Eijji, EijM = EijM, Eij2M = Eij2M, EijjiM = EijjiM, EijC = EijC, Eij2C = Eij2C, EijjiC = EijjiC, EijAP = EijAP, EijAN = EijAN, Eij2AP = Eij2AP, Eij2AN = Eij2AN, EijjiA = EijjiA)
 }
 
 # Spectral Norm of matrix (we only consider real matrix here!)
