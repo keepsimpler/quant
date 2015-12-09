@@ -8,7 +8,10 @@ params_acm <- function(hybrid_graph, coeff, antago.symm = TRUE) {
     s <- runif2(n, beta0.mu, beta0.sd)
     Gamma = matrix(abs(rnorm(n * n, gamma.mu, gamma.sd)),
                    nrow = n, ncol = n)
-    M = Gamma * mutual_graph  # mutualism interactions
+    num.mutual <- ifelse(sum(mutual_graph)==0,1,sum(mutual_graph))
+    num.competitive <- ifelse(sum(competitive_graph)==0,1,sum(competitive_graph))
+    P = num.mutual / num.competitive
+    M = Gamma * mutual_graph / P  # mutualism interactions
     # Positive part of antagonism interactions
     antago_graph[antago_graph < 0] = 0
     AP = Gamma * antago_graph
@@ -16,7 +19,7 @@ params_acm <- function(hybrid_graph, coeff, antago.symm = TRUE) {
       AN = t(AP)
     else
       AN = Gamma * t(antago_graph)
-    C = Gamma * competitive_graph
+    C = Gamma * competitive_graph * P
     H = matrix(runif2(n * n, h.mu, h.sd), nrow = n, ncol = n)
     G = matrix(runif2(n * n, g.mu, g.sd), nrow = n, ncol = n)
     E = matrix(runif2(n * n, e.mu, e.sd), nrow = n, ncol = n)
@@ -112,7 +115,7 @@ get_lev <- function(coeff, antago.symm = FALSE, nstar = NULL) {
     nstar = rep(1, s) # runif(s, min = 0, max = 2)
   tmp <- get_jacobian(coeff = coeff, antago.symm = antago.symm, nstar = nstar)
   GammaM <- tmp$GammaM
-  EijM <- mean(GammaM)
+  EijM <- mean(GammaM)  # should delete diagonal elements
   Eij2M <- mean(GammaM * GammaM)
   EijjiM <- mean(GammaM * t(GammaM))
 
@@ -151,7 +154,8 @@ spectral.norm <- function(A) {
 get_lev_variability <- function(coeff, antago.symm = FALSE) {
   print(coeff['id'])
   I = diag(1, unlist(coeff['s'])) # identity matrix
-  Phi <- get_jacobian(coeff = coeff, antago.symm = antago.symm)
+  tmp <- get_jacobian(coeff = coeff, antago.symm = antago.symm)
+  Phi = tmp$Gamma
   lev = - max(Re(eigen(Phi)$values))
   Vs = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
   Vd = 1 / norm(- solve(Phi), type = '2')
