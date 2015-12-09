@@ -8,18 +8,18 @@ params_acm <- function(hybrid_graph, coeff, antago.symm = TRUE) {
     s <- runif2(n, beta0.mu, beta0.sd)
     Gamma = matrix(abs(rnorm(n * n, gamma.mu, gamma.sd)),
                    nrow = n, ncol = n)
-    num.mutual <- ifelse(sum(mutual_graph)==0,1,sum(mutual_graph))
-    num.competitive <- ifelse(sum(competitive_graph)==0,1,sum(competitive_graph))
-    P = num.mutual / num.competitive
-    M = Gamma * mutual_graph / P  # mutualism interactions
-    # Positive part of antagonism interactions
+    #num.mutual <- ifelse(sum(mutual_graph)==0,1,sum(mutual_graph))
+    #num.competitive <- ifelse(sum(competitive_graph)==0,1,sum(competitive_graph))
+    #P = num.mutual / num.competitive
+    M = Gamma * mutual_graph  # mutualism interactions / P
+    # Get Positive part of antagonism interactions
     antago_graph[antago_graph < 0] = 0
     AP = Gamma * antago_graph
     if (antago.symm == TRUE)
       AN = t(AP)
     else
       AN = Gamma * t(antago_graph)
-    C = Gamma * competitive_graph * P
+    C = Gamma * competitive_graph  # * P
     H = matrix(runif2(n * n, h.mu, h.sd), nrow = n, ncol = n)
     G = matrix(runif2(n * n, g.mu, g.sd), nrow = n, ncol = n)
     E = matrix(runif2(n * n, e.mu, e.sd), nrow = n, ncol = n)
