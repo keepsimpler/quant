@@ -151,6 +151,19 @@ spectral.norm <- function(A) {
   sqrt(max(Re(eigen(t(A) %*% A)$values)))
 }
 
+#' @title get stability measurements according to the Jacobian at equilibrium
+#' @param Phi, the Jacobian at equilibrium
+#' @return
+get_stability <- function(Phi) {
+  s = dim(Phi)[1]
+  I = diag(1, s)
+  Rinf = - max(Re(eigen(Phi)$values))
+  Is = 1 / (2 * norm(- solve(kronecker(I, Phi) + kronecker(Phi, I)), type = '2'))
+  Id = 1 / norm(- solve(Phi), type = '2')
+  R0 = - max(Re(eigen(Phi + t(Phi))$values)) / 2
+  c(Rinf = Rinf, Is = Is, Id = Id, R0 = R0)
+}
+
 get_lev_variability <- function(coeff, antago.symm = FALSE) {
   print(coeff['id'])
   I = diag(1, unlist(coeff['s'])) # identity matrix

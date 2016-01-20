@@ -1,4 +1,22 @@
 ###############################################################################
+## Using optimization to solve ODE
+###############################################################################
+
+#' @title the minimized function
+#' @param nstar, the variables to be optimized
+#' @param params, the other parameters
+#' @return the optimized variables
+f_lv2cm <- function(nstar, params) {
+  with(params, {
+    prod(abs(r - C %*% nstar + (M %*% nstar) / (1 + h * M %*% nstar)))
+  })
+}
+
+#' @title the initial function. Update [params] according to initialized [nstar]
+#' @param nstar,
+
+
+###############################################################################
 #' @title Generate a connected graph using package [igraph]
 #'
 #' @param s, size of network.
