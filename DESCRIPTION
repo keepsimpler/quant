@@ -1,10 +1,13 @@
 Package: QuantR
 Type: Package
-Title: Functions for Quant
-Version: 0.1
+Title: My trading utility functions
+Version: 0.0.0.9000
 Date: 2015-11-24
-Author: Wenfeng Feng
+Author: Wenfeng Feng, 
 Maintainer: Wenfeng Feng <fengwenfeng@gmail.com>
-Description: To be ...
-License: GPL-3
-LazyData: TRUE
+Description: .
+Imports: plyr (>= 1.8.1),
+    igraph (>= 0.7.1)
+License: GPL (>= 2)  
+Suggests: knitr
+VignetteBuilder: knitr
